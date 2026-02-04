@@ -55,3 +55,10 @@ Desktop.ini
 # services
 services/
 
+# services and keys
+services/
+*.json
+!package.json
+!package-lock.json
+!app.json
+!tsconfig.json
