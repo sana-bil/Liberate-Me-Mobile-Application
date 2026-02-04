@@ -32,20 +32,20 @@ export default function WelcomeScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      
+      <StatusBar barStyle="dark-content" />
+
       <ImageBackground
         source={require('../../assets/images/welcome-image.jpg')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        <View style={styles.overlay} />
-        
+        {/* Overlay removed for clean white background */}
+
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.content}>
             <View style={styles.centerContent}>
-              
-              {/* BRANDING SECTION - NOW PUSHED DOWN */}
+
+              {/* BRANDING SECTION */}
               <View style={styles.brandingSection}>
                 <Text style={styles.brandName} numberOfLines={1}>
                   LIBERATE ME
@@ -88,15 +88,12 @@ export default function WelcomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF', // Ensure fallback white
   },
   backgroundImage: {
     flex: 1,
     width: width,
     height: height,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)', 
   },
   safeArea: {
     flex: 1,
@@ -104,30 +101,30 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: 24,
   },
   centerContent: {
     flex: 1,
     justifyContent: 'space-between',
-    alignItems: 'center',
-    // INCREASED padding from 0.1 to 0.18 to push it down
-    paddingTop: height * 0.18, 
+    paddingTop: height * 0.15,
     paddingBottom: 40,
   },
   brandingSection: {
     alignItems: 'center',
     width: '100%',
   },
+  brandEmoji: {
+    fontSize: 48,
+    marginBottom: 20,
+  },
   brandName: {
     fontFamily: 'Raleway_700Bold',
-    fontSize: 30, 
-    color: '#FFFFFF',
-    letterSpacing: 12, 
+    fontSize: 30,
+    color: colors.textPrimary, // Keeping dark because BG is white
+    letterSpacing: 12, // RESTORED original wide spacing
     textAlign: 'center',
+    marginBottom: 0,
     textTransform: 'uppercase',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
   },
   minimalDivider: {
     width: 50,
@@ -139,7 +136,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontFamily: 'Raleway_600SemiBold',
     fontSize: 14,
-    color: '#FFFFFF',
+    color: colors.textSecondary,
     letterSpacing: 6,
     textTransform: 'uppercase',
   },
@@ -153,33 +150,46 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     width: '100%',
-    marginBottom: 12,
+    marginBottom: 16,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   primaryButtonText: {
-    fontFamily: 'Raleway_600SemiBold',
+    fontFamily: 'Raleway_700Bold',
     color: '#FFFFFF',
     fontSize: 18,
     letterSpacing: 1,
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'transparent',
     paddingVertical: 18,
     borderRadius: 16,
     alignItems: 'center',
     width: '100%',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: 25,
+    borderWidth: 2, // Added border back for visibility
+    borderColor: '#FFFFFF', // Fixed: White border for visibility
   },
   secondaryButtonText: {
-    fontFamily: 'Raleway_600SemiBold',
-    color: '#FFFFFF',
+    fontFamily: 'Raleway_700Bold',
+    color: '#FFFFFF', // Requested White Text
     fontSize: 18,
+    letterSpacing: 1,
+  },
+  badges: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+    opacity: 0.6,
   },
   securityBadge: {
-    fontFamily: 'Raleway_600SemiBold',
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.6)',
+    marginTop: 24,
+    fontFamily: 'Raleway_700Bold', // Bold for better visibility
+    fontSize: 11, // Slightly larger
+    color: colors.textPrimary, // Darker color
     letterSpacing: 2,
+    opacity: 1, // Full opacity
   },
 });

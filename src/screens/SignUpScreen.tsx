@@ -16,13 +16,21 @@ import {
 import { colors } from '../theme/colors';
 import { useAuth } from '../services/AuthContext';
 import { useFonts, Raleway_400Regular, Raleway_600SemiBold, Raleway_700Bold } from '@expo-google-fonts/raleway';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { auth, db } from '../services/firebase';
+import { updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const { height } = Dimensions.get('window');
 
 export default function SignUpScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [birthday, setBirthday] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
 
@@ -32,8 +40,15 @@ export default function SignUpScreen({ navigation }: any) {
     Raleway_700Bold,
   });
 
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setBirthday(selectedDate);
+    }
+  };
+
   const handleSignUp = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!email || !username || !password || !confirmPassword || !birthday) {
       Alert.alert('Oops!', 'Please fill in all fields');
       return;
     }
@@ -56,19 +71,41 @@ export default function SignUpScreen({ navigation }: any) {
 
     setLoading(true);
     try {
+      // 1. Create User
       await signUp(email, password);
+
+      // 2. Update Profile & Save Data (handled here to avoid AuthContext changes)
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        // Update Display Name
+        await updateProfile(currentUser, {
+          displayName: username,
+        });
+
+        // Save User Data to Firestore
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          uid: currentUser.uid,
+          email: email.trim(),
+          username: username.trim(),
+          birthday: birthday.toISOString(),
+          createdAt: new Date().toISOString(),
+        });
+      }
+
       navigation.navigate('SignIn');
     } catch (error: any) {
       let errorMessage = 'Something went wrong. Please try again.';
-      
+
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'This email is already registered';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address';
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'Password is too weak. Make it stronger!';
+      } else {
+        errorMessage = error.message; // Show specific error for debugging if needed
       }
-      
+
       Alert.alert('Oops!', errorMessage);
       setLoading(false);
     }
@@ -89,81 +126,119 @@ export default function SignUpScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <Text style={styles.backText}>✕</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.titleContainer}>
-            <Text style={styles.emoji}>🌸</Text>
-            <Text style={styles.title}>Let's get started</Text>
-            <Text style={styles.subtitle}>Create your account</Text>
-          </View>
-        </View>
+        {/* Back Button - Pinned to Top */}
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>✕</Text>
+        </TouchableOpacity>
 
-        {/* Form */}
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="your.email@example.com"
-              placeholderTextColor={colors.textTertiary}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-            />
+        {/* Main Content Centered */}
+        <View style={styles.mainContainer}>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.titleContainer}>
+              {/* Emoji removed as requested */}
+              <Text style={styles.title}>Let's get started</Text>
+              <Text style={styles.subtitle}>Create your account</Text>
+            </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="At least 6 characters"
-              placeholderTextColor={colors.textTertiary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete="password-new"
-            />
-          </View>
+          {/* Form */}
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="your.email@example.com"
+                placeholderTextColor={colors.textTertiary}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoComplete="email"
+              />
+            </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Same as above"
-              placeholderTextColor={colors.textTertiary}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              autoComplete="password-new"
-            />
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Choose a username"
+                placeholderTextColor={colors.textTertiary}
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                autoComplete="username"
+              />
+            </View>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignUp}
-            disabled={loading}
-            activeOpacity={0.9}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.textWhite} />
-            ) : (
-              <Text style={styles.buttonText}>Create My Account</Text>
-            )}
-          </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="At least 6 characters"
+                placeholderTextColor={colors.textTertiary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="password-new"
+              />
+            </View>
 
-          <View style={styles.noteBox}>
-            <Text style={styles.noteText}>
-              📧 We'll email you a verification link (check spam!)
-            </Text>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Confirm Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Same as above"
+                placeholderTextColor={colors.textTertiary}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                autoComplete="password-new"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Birthday</Text>
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={styles.dateInput}
+              >
+                <Text style={[styles.inputText, !birthday && { color: colors.textTertiary }]}>
+                  {birthday ? birthday.toLocaleDateString() : 'Select your birthday'}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={birthday || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={onDateChange}
+                  maximumDate={new Date()} // Can't be born in the future
+                />
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={handleSignUp}
+              disabled={loading}
+              activeOpacity={0.9}
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.textWhite} />
+              ) : (
+                <Text style={styles.buttonText}>Create My Account</Text>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.noteBox}>
+              <Text style={styles.noteText}>
+                We'll email you a verification link (check spam!)
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -187,116 +262,147 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: 12,
     paddingBottom: 20,
-    justifyContent: 'space-between',
+    // Removed justifyContent, relying on mainContainer to center
+  },
+  mainContainer: {
+    flex: 1,
+    justifyContent: 'center', // VERTICALLY CENTER CONTENT
   },
   header: {
-    marginBottom: 8,
+    marginBottom: 12, // Reduced from 24
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12, // Restored breathing room
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   backText: {
-    fontSize: 20,
+    fontSize: 18,
     color: colors.textSecondary,
   },
   titleContainer: {
     alignItems: 'center',
   },
   emoji: {
-    fontSize: 40,
-    marginBottom: 12,
+    fontSize: 32,
+    marginBottom: 16,
   },
   title: {
     fontFamily: 'Raleway_700Bold',
-    fontSize: 26,
+    fontSize: 28, // Slightly smaller title
     color: colors.textPrimary,
-    marginBottom: 6,
+    marginBottom: 4, // Reduced from 8
     textAlign: 'center',
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontFamily: 'Raleway_400Regular',
-    fontSize: 15,
+    fontSize: 14, // Slightly smaller subtitle
     color: colors.textSecondary,
     textAlign: 'center',
+    lineHeight: 20, // Reduced line height
   },
   form: {
-    gap: 16,
+    gap: 12, // Reduced from 16
   },
   inputGroup: {
-    gap: 8,
+    gap: 4, // Reduced from 6
   },
   label: {
     fontFamily: 'Raleway_600SemiBold',
-    fontSize: 14,
+    fontSize: 13, // Slightly smaller label
     color: colors.textPrimary,
+    marginBottom: 2, // Reduced from 4
   },
   input: {
     fontFamily: 'Raleway_400Regular',
-    backgroundColor: colors.cardBackground,
-    borderWidth: 2,
-    borderColor: colors.borderLight,
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    fontSize: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12, // Reduced from 14
+    fontSize: 15, // Slightly smaller input text
+    color: colors.textPrimary,
+  },
+  dateInput: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12, // Reduced from 14
+    justifyContent: 'center',
+  },
+  inputText: {
+    fontFamily: 'Raleway_400Regular',
+    fontSize: 15, // Match input font size
     color: colors.textPrimary,
   },
   button: {
     backgroundColor: colors.primary,
-    paddingVertical: 18,
-    borderRadius: 16,
+    paddingVertical: 14, // Reduced from 16
+    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 8, // Reduced from 12
+    elevation: 2,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.7,
+    backgroundColor: colors.secondary,
   },
   buttonText: {
     fontFamily: 'Raleway_700Bold',
     color: colors.textWhite,
-    fontSize: 17,
-    letterSpacing: 0.3,
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
   noteBox: {
-    backgroundColor: colors.primaryLight,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    paddingVertical: 10, // Reduced from 12
+    paddingHorizontal: 12, // Reduced from 16
+    borderRadius: 8,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
   },
   noteText: {
     fontFamily: 'Raleway_400Regular',
-    fontSize: 13,
-    color: colors.textPrimary,
+    fontSize: 12, // Slightly smaller note
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 8,
+    gap: 4,
+    paddingTop: 12, // Reduced from 20
   },
   footerText: {
     fontFamily: 'Raleway_400Regular',
-    fontSize: 15,
+    fontSize: 13, // Slightly smaller footer text
     color: colors.textSecondary,
   },
   footerLink: {
     fontFamily: 'Raleway_600SemiBold',
-    fontSize: 15,
+    fontSize: 13,
     color: colors.primary,
   },
 });

@@ -39,7 +39,7 @@ export default function SignInScreen({ navigation }: any) {
       await signIn(email, password);
     } catch (error: any) {
       let errorMessage = 'Something went wrong. Please try again.';
-      
+
       if (error.message.includes('verify your email')) {
         errorMessage = error.message;
       } else if (error.code === 'auth/user-not-found') {
@@ -51,7 +51,7 @@ export default function SignInScreen({ navigation }: any) {
       } else if (error.code === 'auth/invalid-credential') {
         errorMessage = 'Invalid email or password';
       }
-      
+
       Alert.alert('Oops!', errorMessage);
       setLoading(false);
     }
@@ -72,68 +72,72 @@ export default function SignInScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <Text style={styles.backText}>✕</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.titleContainer}>
-            <Text style={styles.emoji}>💫</Text>
-            <Text style={styles.title}>Welcome back!</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
-          </View>
-        </View>
+        {/* Back Button - Pinned to Top */}
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>✕</Text>
+        </TouchableOpacity>
 
-        {/* Form */}
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="your.email@example.com"
-              placeholderTextColor={colors.textTertiary}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-            />
+        {/* Main Content Centered */}
+        <View style={styles.mainContainer}>
+          {/* Header Text */}
+          <View style={styles.header}>
+            <View style={styles.titleContainer}>
+              {/* Emoji removed */}
+              <Text style={styles.title}>Welcome back!</Text>
+              <Text style={styles.subtitle}>Sign in to continue</Text>
+            </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor={colors.textTertiary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete="password"
-            />
-          </View>
+          {/* Form */}
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="your.email@example.com"
+                placeholderTextColor={colors.textTertiary}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoComplete="email"
+              />
+            </View>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignIn}
-            disabled={loading}
-            activeOpacity={0.9}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.textWhite} />
-            ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your password"
+                placeholderTextColor={colors.textTertiary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="password"
+              />
+            </View>
 
-          <View style={styles.noteBox}>
-            <Text style={styles.noteText}>
-              ✉️ Email must be verified to sign in
-            </Text>
+            <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={handleSignIn}
+              disabled={loading}
+              activeOpacity={0.9}
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.textWhite} />
+              ) : (
+                <Text style={styles.buttonText}>Sign In</Text>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.noteBox}>
+              <Text style={styles.noteText}>
+                Email must be verified to sign in
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -157,48 +161,53 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 20,
-    justifyContent: 'space-between',
+    paddingTop: 12, // Added to match SignUp
+    paddingBottom: 20, // Adjusted to match SignUp
+  },
+  mainContainer: {
+    flex: 1,
+    justifyContent: 'center', // VERTICAL CENTER - exact match
   },
   header: {
-    marginBottom: 8,
+    marginBottom: 24, // Restored reasonable gap
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12, // Restored breathing room
+    alignSelf: 'flex-start', // Align to left
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   backText: {
-    fontSize: 20,
+    fontSize: 18,
     color: colors.textSecondary,
   },
   titleContainer: {
-    alignItems: 'center',
+    alignItems: 'center', // Centered alignment
   },
-  emoji: {
-    fontSize: 40,
-    marginBottom: 12,
-  },
+  // Emoji style removed or hidden
   title: {
     fontFamily: 'Raleway_700Bold',
-    fontSize: 26,
+    fontSize: 32,
     color: colors.textPrimary,
-    marginBottom: 6,
-    textAlign: 'center',
+    marginBottom: 8,
+    textAlign: 'center', // Centered text
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontFamily: 'Raleway_400Regular',
-    fontSize: 15,
+    fontSize: 16,
     color: colors.textSecondary,
-    textAlign: 'center',
+    textAlign: 'center', // Centered text
+    lineHeight: 24,
   },
   form: {
-    gap: 16,
+    gap: 20,
   },
   inputGroup: {
     gap: 8,
@@ -207,66 +216,74 @@ const styles = StyleSheet.create({
     fontFamily: 'Raleway_600SemiBold',
     fontSize: 14,
     color: colors.textPrimary,
+    marginBottom: 4,
   },
   input: {
     fontFamily: 'Raleway_400Regular',
-    backgroundColor: colors.cardBackground,
-    borderWidth: 2,
-    borderColor: colors.borderLight,
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     fontSize: 16,
     color: colors.textPrimary,
   },
   button: {
     backgroundColor: colors.primary,
-    paddingVertical: 18,
-    borderRadius: 16,
+    paddingVertical: 16,
+    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 12,
+    elevation: 2,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.7,
+    backgroundColor: colors.secondary,
   },
   buttonText: {
     fontFamily: 'Raleway_700Bold',
     color: colors.textWhite,
-    fontSize: 17,
-    letterSpacing: 0.3,
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
   noteBox: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.surface,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 8,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   noteText: {
     fontFamily: 'Raleway_400Regular',
     fontSize: 13,
-    color: colors.textPrimary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 8,
+    gap: 4,
+    paddingTop: 20,
   },
   footerText: {
     fontFamily: 'Raleway_400Regular',
-    fontSize: 15,
+    fontSize: 14,
     color: colors.textSecondary,
   },
   footerLink: {
     fontFamily: 'Raleway_600SemiBold',
-    fontSize: 15,
+    fontSize: 14,
     color: colors.primary,
   },
 });

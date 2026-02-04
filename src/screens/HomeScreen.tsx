@@ -17,7 +17,7 @@ export default function HomeScreen({ navigation }: any) {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [journalText, setJournalText] = useState('');
-  const [allData, setAllData] = useState<any>({}); 
+  const [allData, setAllData] = useState<any>({});
   const [showMoodModal, setShowMoodModal] = useState(false);
 
   const isFutureDate = isAfter(startOfDay(new Date(selectedDate)), startOfDay(new Date()));
@@ -70,7 +70,7 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      
+
       {/* PERFECTLY CENTERED HEADER */}
       <View style={styles.header}>
         <View style={styles.headerStatus}>
@@ -84,31 +84,33 @@ export default function HomeScreen({ navigation }: any) {
           </Text>
         </View>
 
-        <TouchableOpacity 
-          style={styles.topIcon} 
+        <TouchableOpacity
+          style={styles.topIcon}
           onPress={() => setSelectedDate(format(new Date(), 'yyyy-MM-dd'))}
         >
-          <Text style={{fontSize: 18}}>📅</Text>
+          <Text style={{ fontSize: 18 }}>📅</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
         <View style={styles.calendarCard}>
-          <Calendar
-            current={selectedDate}
-            onDayPress={(day: any) => setSelectedDate(day.dateString)}
-            dayComponent={({ date, state }: any) => {
-              const dayMood = allData[date?.dateString]?.mood;
-              const isSelected = selectedDate === date?.dateString;
-              return (
-                <TouchableOpacity onPress={() => setSelectedDate(date.dateString)} style={[styles.customDay, isSelected && styles.selectedDay]}>
-                  <Text style={[styles.dayText, state === 'disabled' && {color: '#ccc'}]}>{date.day}</Text>
-                  {dayMood ? <Text style={styles.calendarEmoji}>{dayMood}</Text> : <View style={{height: 12}} />}
-                </TouchableOpacity>
-              );
-            }}
-            theme={{ calendarBackground: '#FFF', textMonthFontSize: 16 }}
-          />
+          <View style={styles.calendarInner}>
+            <Calendar
+              current={selectedDate}
+              onDayPress={(day: any) => setSelectedDate(day.dateString)}
+              dayComponent={({ date, state }: any) => {
+                const dayMood = allData[date?.dateString]?.mood;
+                const isSelected = selectedDate === date?.dateString;
+                return (
+                  <TouchableOpacity onPress={() => setSelectedDate(date.dateString)} style={[styles.customDay, isSelected && styles.selectedDay]}>
+                    <Text style={[styles.dayText, state === 'disabled' && { color: '#ccc' }]}>{date.day}</Text>
+                    {dayMood ? <Text style={styles.calendarEmoji}>{dayMood}</Text> : <View style={{ height: 12 }} />}
+                  </TouchableOpacity>
+                );
+              }}
+              theme={{ calendarBackground: '#FFF', textMonthFontSize: 16 }}
+            />
+          </View>
         </View>
 
         <View style={styles.sectionContainer}>
@@ -118,13 +120,13 @@ export default function HomeScreen({ navigation }: any) {
               <Text style={styles.boxEmoji}>{allData[selectedDate]?.mood || (isFutureDate ? '🔒' : '＋')}</Text>
               <Text style={styles.boxLabel}>Log Mood</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={[styles.journalBox, isFutureDate && styles.lockedBox]} onPress={() => handleAction('journal')}>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={styles.boxLabel}>Journal {isFutureDate && '🔒'}</Text>
-                {!isFutureDate && <Text style={{fontSize: 12, color: colors.primary}}>View All ↗</Text>}
+                {!isFutureDate && <Text style={{ fontSize: 12, color: colors.primary }}>View All ↗</Text>}
               </View>
-              <Text numberOfLines={3} style={[styles.journalPlaceholder, journalText ? {color: '#333'} : {color: '#AAA'}]}>
+              <Text numberOfLines={3} style={[styles.journalPlaceholder, journalText ? { color: '#333' } : { color: '#AAA' }]}>
                 {journalText || (isFutureDate ? "Available on this date" : "How was your day? Tap to write...")}
               </Text>
             </TouchableOpacity>
@@ -133,7 +135,7 @@ export default function HomeScreen({ navigation }: any) {
 
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Daily Zen</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginTop: 15}}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 15 }}>
             {dailyZenContent.map((item) => (
               <TouchableOpacity key={item.id} style={[styles.zenCard, { backgroundColor: item.color }]}
                 onPress={() => {
@@ -146,7 +148,7 @@ export default function HomeScreen({ navigation }: any) {
               >
                 <View style={styles.zenHeader}>
                   <Text style={styles.zenType}>{item.type}</Text>
-                  <Text style={{fontSize: 20}}>{item.icon}</Text>
+                  <Text style={{ fontSize: 20 }}>{item.icon}</Text>
                 </View>
                 <View>
                   <Text style={styles.zenTitle}>{item.title}</Text>
@@ -160,7 +162,7 @@ export default function HomeScreen({ navigation }: any) {
 
       {/* TAB BAR WITH SETTINGS */}
       <View style={styles.tabBar}>
-        <TabItem icon="🏠" label="Home" active onPress={() => {}} />
+        <TabItem icon="🏠" label="Home" active onPress={() => { }} />
         <TabItem icon="💭" label="Echo" onPress={() => navigation.navigate('Echo')} />
         <TabItem icon="📊" label="Insights" onPress={() => navigation.navigate('Insights')} />
         <TabItem icon="⚙️" label="Settings" onPress={() => navigation.navigate('Settings')} />
@@ -198,21 +200,21 @@ const TabItem = ({ icon, label, active, onPress }: any) => (
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
-  header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingHorizontal: 20, 
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
     paddingVertical: 10,
     height: 60
   },
-  headerStatus: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#FDF2F5', 
-    paddingHorizontal: 10, 
-    paddingVertical: 5, 
-    borderRadius: 20 
+  headerStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDF2F5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20
   },
   greetingText: { fontWeight: '700', fontSize: 12, color: colors.primary, marginRight: 4 },
   statusEmoji: { fontSize: 14 },
@@ -225,7 +227,21 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontWeight: '700', fontSize: 18, color: '#1A1A1A' },
   topIcon: { padding: 10, borderRadius: 15, backgroundColor: '#F8F9FA' },
-  calendarCard: { backgroundColor: '#FFF', marginHorizontal: 20, borderRadius: 20 },
+  // "In a title [tile] whose color is faded"
+  calendarCard: {
+    backgroundColor: '#FDF2F5', // Faded Pink (color of the "title"/status)
+    marginHorizontal: 20,
+    borderRadius: 25,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#FFE4E8' // Matching border for the faded tile
+  },
+  calendarInner: {
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+    overflow: 'hidden',
+    padding: 5 // Optional: internal padding for spacing
+  },
   customDay: { alignItems: 'center', justifyContent: 'center', width: 35, height: 42, borderRadius: 10 },
   selectedDay: { backgroundColor: '#F0F7FF' },
   dayText: { fontWeight: '600', fontSize: 13 },

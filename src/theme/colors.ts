@@ -3,35 +3,35 @@ export const colors = {
   primary: '#D4A5A5',
   primaryLight: '#E8C5C5',
   primaryDark: '#B88B8B',
-  
+
   // Secondary - Soft Purple/Gray
   secondary: '#9B8FA5',
   secondaryLight: '#C4BAD0',
   secondaryDark: '#756982',
-  
+
   // Accent - Muted Rose
   accent: '#C9A0A0',
-  
+
   // Backgrounds
-  background: '#F5F3F0', // Warm off-white
+  background: '#FFFFFF', // Pure White
   cardBackground: '#FFFFFF',
-  surface: '#FEFEFE',
-  
-  // Text - Professional hierarchy
-  textPrimary: '#2D1B2E',
-  textSecondary: '#6B5B6E',
-  textTertiary: '#9B8B9E',
+  surface: '#F8F9FA', // Very subtle off-white for headers/surfaces
+
+  // Text - High contrast professional hierarchy
+  textPrimary: '#2C3E50',
+  textSecondary: '#7F8C8D',
+  textTertiary: '#BDC3C7',
   textWhite: '#FFFFFF',
-  
+
   // Status
-  success: '#8FA88F',
-  warning: '#D4B896',
-  error: '#C89090',
-  
+  success: '#27AE60',
+  warning: '#F39C12',
+  error: '#C0392B',
+
   // Borders
-  border: '#E8DFE7',
-  borderLight: '#F0EBF0',
-  
+  border: '#ECF0F1',
+  borderLight: '#F5F6FA',
+
   // Shadows
-  shadowColor: '#2D1B2E',
+  shadowColor: '#000000',
 };
