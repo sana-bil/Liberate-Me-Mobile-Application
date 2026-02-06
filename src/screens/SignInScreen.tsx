@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12, // Restored breathing room
     alignSelf: 'flex-start', // Align to left
-    borderWidth: 1,
+    borderWidth: 1, 
     borderColor: colors.border,
   },
   backText: {
